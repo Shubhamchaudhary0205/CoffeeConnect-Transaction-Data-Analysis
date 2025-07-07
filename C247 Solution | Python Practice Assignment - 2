@@ -1,0 +1,79 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load CSVs
+df1 = pd.read_csv("index_1.csv", parse_dates=["datetime"])
+df2 = pd.read_csv("index_2.csv", parse_dates=["datetime"])
+
+# 1
+df1[df1['money'] > 30]
+
+# 2
+df1[df1['cash_type'] == 'card']
+
+# 3
+df2[df2['coffee_name'].isin(['Latte', 'Americano'])]
+
+# 4
+df1[df1['datetime'] > '2024-03-01 12:00:00']
+
+# 5
+df1[df1['card'] == 'ANON-0000-0000-0002'].head()
+
+# 6
+df1.groupby('coffee_name')['money'].sum(),
+df2.groupby('coffee_name')['money'].sum()
+
+# 7
+df1['cash_type'].value_counts(), df2['cash_type'].value_counts()
+
+# 8
+df1.groupby('coffee_name')['money'].mean()
+
+# 9
+df2.groupby('coffee_name')['money'].sum().sort_values(ascending=False).head
+(1)
+
+# 10
+df1_card = df1[['card', 'money']].rename(columns={'money': 'money_1'})
+df2_card = df2[['card', 'money']].rename(columns={'money': 'money_2'})
+merged_outer = pd.merge(df1_card, df2_card, on='card', how='outer')
+
+# 11
+merged_inner = pd.merge(df1, df2, on='coffee_name', how='inner')
+len(merged_inner)
+
+# 12
+merged_inner.groupby('coffee_name')[['money_x', 'money_y']].sum()
+
+# 13
+combined = pd.concat([df1, df2])
+combined.groupby('date')['money'].sum()
+
+# 14
+combined['coffee_name'].value_counts().head(1)
+
+# 15
+combined.groupby('card').size()[lambda x: x > 1].count()
+
+# 16
+combined['hour'] = combined['datetime'].dt.hour
+combined['hour'].value_counts().sort_index()
+
+# 17
+plt.figure(figsize=(10, 5))
+sns.barplot(data=combined, x='coffee_name', y='money', estimator=sum)
+plt.xticks(rotation=45)
+plt.title('Total Revenue per Coffee')
+plt.tight_layout()
+plt.show()
+
+# 18
+combined_daily = combined.groupby('date')['money'].sum().reset_index()
+plt.figure(figsize=(10, 5))
+sns.lineplot(data=combined_daily, x='date', y='money')
+plt.title('Daily Revenue Trend')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
